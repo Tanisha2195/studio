@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowRight, SearchCode, MessageCircleQuestion } from 'lucide-react';
+import { ArrowRight, SearchCode, MessageCircleQuestion, BookOpen, FileText as FileTextIcon, Search } from 'lucide-react';
 import { QuestaLogo } from '@/components/QuestaLogo';
 
 export const metadata: Metadata = {
@@ -15,9 +15,31 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-4 md:p-8 text-center bg-gradient-to-br from-background via-secondary/10 to-background">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        {/* Optional: decorative background elements */}
+        {/* Existing decorative background elements */}
         <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full filter blur-2xl animate-pulse opacity-50"></div>
         <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-accent/10 rounded-full filter blur-2xl animate-pulse delay-1000 opacity-50"></div>
+
+        {/* New decorative SVG elements */}
+        <BookOpen className="absolute top-[10%] left-[5%] h-20 w-20 text-primary/15 opacity-30 transform -rotate-12 filter blur-sm" />
+        <FileTextIcon className="absolute top-[60%] left-[15%] h-24 w-24 text-primary/10 opacity-25 transform rotate-6 filter blur-xs" />
+        <Search className="absolute top-[20%] right-[10%] h-16 w-16 text-primary/20 opacity-30 transform rotate-12 filter blur-sm" />
+        <BookOpen className="absolute bottom-[10%] right-[5%] h-28 w-28 text-primary/10 opacity-20 transform rotate-3 filter blur-xs" />
+        <FileTextIcon className="absolute bottom-[30%] left-[40%] h-12 w-12 text-primary/15 opacity-25 transform -rotate-3 filter blur-sm" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="absolute top-[40%] right-[30%] text-primary/10 opacity-20 transform -rotate-45 filter blur-xs">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="3" y1="9" x2="21" y2="9"></line>
+          <line x1="3" y1="15" x2="21" y2="15"></line>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
+          <line x1="15" y1="3" x2="15" y2="21"></line>
+        </svg>
+         <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="absolute bottom-[5%] left-[25%] text-primary/15 opacity-25 transform rotate-10 filter blur-sm">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <line x1="10" y1="9" x2="8" y2="9"></line>
+        </svg>
+
       </div>
       
       <main className="w-full max-w-3xl z-10">
