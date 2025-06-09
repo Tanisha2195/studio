@@ -6,7 +6,6 @@ import { FileDropzone } from '@/components/FileDropzone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -65,7 +64,7 @@ export default function QuestaPage() {
     if (!documentTextContent) {
       toast({
         title: "Text Content Required",
-        description: "Keyword extraction requires text content. Please upload a .txt file or paste text.",
+        description: "Keyword extraction requires text content. Please upload a .txt file.",
         variant: "destructive",
       });
       return;
@@ -133,7 +132,7 @@ export default function QuestaPage() {
          if (!documentTextContent && (previousQuestion || previousAnswer)) {
           toast({
             title: "Text Content Needed for Follow-up",
-            description: "Detailed follow-ups require document text. Please upload a TXT or paste content for best results with follow-up questions.",
+            description: "Detailed follow-ups require document text. Please upload a TXT file for best results with follow-up questions.",
             variant: "default",
           });
         }
@@ -187,7 +186,7 @@ export default function QuestaPage() {
                      <Lightbulb className="h-4 w-4 text-primary" />
                     <AlertTitle className="font-headline text-primary">Text Content Recommended</AlertTitle>
                     <AlertDescription className="text-primary/80">
-                      For best keyword extraction results, upload a .txt file or paste the document's text content.
+                      For best keyword extraction results, upload a .txt file.
                     </AlertDescription>
                   </Alert>
                 )}
