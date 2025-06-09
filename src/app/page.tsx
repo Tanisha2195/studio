@@ -73,12 +73,15 @@ export default function HomePage() {
         </svg>
          <SearchIcon className="absolute top-[45%] right-[45%] h-9 w-9 text-primary opacity-10 transform rotate-35 filter blur-none" />
          <BookOpen className="absolute bottom-[40%] left-[3%] h-10 w-10 text-primary opacity-12 transform -rotate-22 filter blur-xs" />
+         <BookOpen className="absolute top-[2%] left-[5%] h-9 w-9 text-primary opacity-15 transform -rotate-15 filter blur-xs" />
+         <FileTextIcon className="absolute top-[1%] left-[2%] h-7 w-7 text-primary opacity-12 transform rotate-5 filter blur-none" />
+         <SearchIcon className="absolute top-[3%] left-[10%] h-8 w-8 text-primary opacity-18 transform rotate-20 filter blur-xs" />
       </div>
       
       <main className="w-full max-w-3xl z-10">
         <Card className="w-full shadow-xl bg-card/90 backdrop-blur-sm border-border/50">
-          <CardHeader className="pb-4">
-            <QuestaLogo iconOnly className="h-16 w-16 text-primary" containerClassName="mx-auto mb-4" />
+          <CardHeader className="pb-4 text-left">
+            <QuestaLogo iconOnly className="h-16 w-16 text-primary" containerClassName="mb-4" />
             <CardTitle className="text-4xl lg:text-5xl font-headline font-bold text-primary">
               Welcome to Questa
             </CardTitle>
@@ -120,4 +123,3 @@ export default function HomePage() {
     </div>
   );
 }
-
