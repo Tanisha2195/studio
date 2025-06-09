@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Search, Send, Lightbulb, FileText, AlertTriangle, Sparkles, MessageSquare, BookOpen, Search as SearchIcon, FileText as FileTextIcon } from 'lucide-react';
+import { Loader2, Search, Send, Lightbulb, FileText as FileTextIcon, AlertTriangle, Sparkles, MessageSquare, BookOpen, Search as SearchIcon, Save } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 import { extractInformation, type ExtractInformationInput } from '@/ai/flows/extract-information-from-document';
@@ -31,6 +31,27 @@ type Message = {
   sources?: string[];
 };
 
+interface HistoryMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  sources?: string[];
+}
+
+interface AppHistoryEntry {
+  id: string;
+  date: string;
+  isoDate: string;
+  fileName: string;
+  fileType: string;
+  keywordSearch?: {
+    keyword: string;
+    extractedInfo: string;
+  };
+  questionsAndAnswers?: HistoryMessage[];
+}
+
+
 export default function QuestaAppPage() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [documentDataUri, setDocumentDataUri] = useState<string | null>(null);
@@ -47,19 +68,28 @@ export default function QuestaAppPage() {
   const [previousQuestion, setPreviousQuestion] = useState<string | null>(null);
   const [previousAnswer, setPreviousAnswer] = useState<string | null>(null);
 
+  const [isSavingSession, setIsSavingSession] = useState<boolean>(false);
+
 
   const { toast } = useToast();
 
-  const handleFileProcessed = (file: File, dataUri: string, textContent: string | null) => {
-    setUploadedFile(file);
-    setDocumentDataUri(dataUri);
-    setDocumentTextContent(textContent);
+  const resetSessionState = () => {
+    setUploadedFile(null);
+    setDocumentDataUri(null);
+    setDocumentTextContent(null);
     setKeyword('');
     setExtractedInfo(null);
     setCurrentQuestion('');
     setConversation([]);
     setPreviousQuestion(null);
     setPreviousAnswer(null);
+  };
+
+  const handleFileProcessed = (file: File, dataUri: string, textContent: string | null) => {
+    resetSessionState(); // Clear previous session before starting a new one
+    setUploadedFile(file);
+    setDocumentDataUri(dataUri);
+    setDocumentTextContent(textContent);
     toast({
       title: "Document Ready",
       description: `${file.name} has been processed and is ready for analysis.`,
@@ -173,13 +203,57 @@ export default function QuestaAppPage() {
     }
   };
 
-  const isAppProcessing = isLoadingExtraction || isLoadingAnswer;
+  const handleSaveSession = () => {
+    if (!uploadedFile) {
+      toast({
+        title: "No Active Session",
+        description: "Upload a document and interact with it to save a session.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingSession(true);
+
+    const newHistoryEntry: AppHistoryEntry = {
+      id: Date.now().toString(),
+      date: new Date().toLocaleString(),
+      isoDate: new Date().toISOString(),
+      fileName: uploadedFile.name,
+      fileType: uploadedFile.type,
+      ...(keyword && extractedInfo && { keywordSearch: { keyword, extractedInfo } }),
+      ...(conversation.length > 0 && { questionsAndAnswers: conversation }),
+    };
+
+    try {
+      const existingHistoryString = localStorage.getItem('questaAppHistory');
+      const existingHistory: AppHistoryEntry[] = existingHistoryString ? JSON.parse(existingHistoryString) : [];
+      const updatedHistory = [newHistoryEntry, ...existingHistory]; // Add new entry to the beginning
+      localStorage.setItem('questaAppHistory', JSON.stringify(updatedHistory));
+      
+      resetSessionState();
+      toast({
+        title: "Session Saved",
+        description: "Your interaction has been saved to history.",
+      });
+    } catch (error) {
+      console.error("Error saving session to localStorage:", error);
+      toast({
+        title: "Saving Failed",
+        description: "Could not save your session. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingSession(false);
+    }
+  };
+
+  const isAppProcessing = isLoadingExtraction || isLoadingAnswer || isSavingSession;
 
 
   return (
     <div className="relative flex flex-col items-center p-4 md:p-8 bg-gradient-to-br from-background to-secondary/30 min-h-[calc(100vh-80px)]">
        <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        {/* Background pattern elements */}
         <BookOpen className="absolute top-[2%] left-[5%] h-9 w-9 text-primary opacity-20 transform -rotate-15 filter blur-xs" />
         <FileTextIcon className="absolute top-[8%] left-[15%] h-10 w-10 text-primary opacity-20 transform rotate-10 filter blur-none" />
         <SearchIcon className="absolute top-[12%] left-[2%] h-8 w-8 text-primary opacity-25 transform rotate-25 filter blur-xs" />
@@ -234,7 +308,6 @@ export default function QuestaAppPage() {
          <SearchIcon className="absolute top-[45%] right-[45%] h-9 w-9 text-primary opacity-15 transform rotate-35 filter blur-none" />
          <BookOpen className="absolute bottom-[40%] left-[3%] h-10 w-10 text-primary opacity-20 transform -rotate-22 filter blur-xs" />
 
-        {/* Elements added between sections */}
         <SearchIcon className="absolute top-[42%] left-[47%] h-10 w-10 text-primary opacity-20 transform rotate-5 filter blur-xs" />
         <FileTextIcon className="absolute top-[58%] right-[46%] h-11 w-11 text-primary opacity-20 transform -rotate-12 filter blur-none" />
         <BookOpen className="absolute top-[50%] left-[calc(50%-20px)] h-9 w-9 text-primary opacity-15 transform rotate-18 filter blur-xs" />
@@ -287,10 +360,10 @@ export default function QuestaAppPage() {
                     placeholder="Enter keyword (e.g., 'budget')"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    disabled={!uploadedFile || isLoadingExtraction}
+                    disabled={!uploadedFile || isLoadingExtraction || isSavingSession}
                     className="shadow-sm"
                   />
-                  <Button onClick={handleExtractKeyword} disabled={!uploadedFile || isLoadingExtraction || !keyword.trim()} className="whitespace-nowrap">
+                  <Button onClick={handleExtractKeyword} disabled={!uploadedFile || isLoadingExtraction || !keyword.trim() || isSavingSession} className="whitespace-nowrap">
                     {isLoadingExtraction ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                     Extract
                   </Button>
@@ -364,11 +437,11 @@ export default function QuestaAppPage() {
                 placeholder={uploadedFile ? "Ask a question about your document..." : "Upload a document to ask questions"}
                 value={currentQuestion}
                 onChange={(e) => setCurrentQuestion(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && !isLoadingAnswer && currentQuestion.trim() && handleAskQuestion()}
-                disabled={!uploadedFile || isLoadingAnswer}
+                onKeyPress={(e) => e.key === 'Enter' && !isLoadingAnswer && currentQuestion.trim() && !isSavingSession && handleAskQuestion()}
+                disabled={!uploadedFile || isLoadingAnswer || isSavingSession}
                 className="shadow-sm"
               />
-              <Button onClick={handleAskQuestion} disabled={!uploadedFile || isLoadingAnswer || !currentQuestion.trim()}>
+              <Button onClick={handleAskQuestion} disabled={!uploadedFile || isLoadingAnswer || !currentQuestion.trim() || isSavingSession}>
                 {isLoadingAnswer ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                 Ask
               </Button>
@@ -377,6 +450,21 @@ export default function QuestaAppPage() {
         </Card>
       </main>
 
+      {uploadedFile && (
+        <div className="w-full max-w-6xl mt-8 flex justify-center z-10">
+          <Button 
+            onClick={handleSaveSession} 
+            disabled={isSavingSession || isLoadingExtraction || isLoadingAnswer} 
+            size="lg"
+            variant="default"
+            className="shadow-md hover:shadow-lg"
+          >
+            {isSavingSession ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
+            End & Save Session
+          </Button>
+        </div>
+      )}
+
       <footer className="w-full max-w-6xl mt-12 text-center text-muted-foreground text-sm font-body z-10">
         <p>&copy; {new Date().getFullYear()} Questa. All rights reserved.</p>
         <p>Powered by GenAI</p>
@@ -384,4 +472,3 @@ export default function QuestaAppPage() {
     </div>
   );
 }
-
