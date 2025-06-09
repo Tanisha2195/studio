@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowRight, Zap, SearchCode, MessageCircleQuestion } from 'lucide-react';
+import { ArrowRight, SearchCode, MessageCircleQuestion } from 'lucide-react';
+import { QuestaLogo } from '@/components/QuestaLogo';
 
 export const metadata: Metadata = {
   title: 'Questa - Welcome to Your AI Document Assistant',
@@ -22,7 +23,7 @@ export default function HomePage() {
       <main className="w-full max-w-3xl z-10">
         <Card className="w-full shadow-xl bg-card/90 backdrop-blur-sm border-border/50">
           <CardHeader className="pb-4">
-            <Zap className="h-16 w-16 text-primary mx-auto mb-4" />
+            <QuestaLogo iconOnly className="h-16 w-16 text-primary" containerClassName="mx-auto mb-4" />
             <CardTitle className="text-4xl lg:text-5xl font-headline font-bold text-primary">
               Welcome to Questa
             </CardTitle>
