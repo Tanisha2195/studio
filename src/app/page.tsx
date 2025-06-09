@@ -16,6 +16,10 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] p-4 md:p-8 text-center bg-gradient-to-br from-background via-secondary/10 to-background">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
         {/* Smaller, more distributed background pattern elements */}
+        <BookOpen className="absolute top-[2%] left-[5%] h-9 w-9 text-primary opacity-15 transform -rotate-15 filter blur-xs" />
+        <FileTextIcon className="absolute top-[8%] left-[15%] h-10 w-10 text-primary opacity-12 transform rotate-10 filter blur-none" />
+        <SearchIcon className="absolute top-[12%] left-[2%] h-8 w-8 text-primary opacity-18 transform rotate-25 filter blur-xs" />
+        
         <BookOpen className="absolute top-[8%] left-[5%] h-10 w-10 text-primary opacity-15 transform -rotate-12 filter blur-none" />
         <FileTextIcon className="absolute top-[15%] right-[8%] h-12 w-12 text-primary opacity-15 transform rotate-6 filter blur-xs" />
         <SearchIcon className="absolute top-[30%] left-[12%] h-8 w-8 text-primary opacity-20 transform rotate-12 filter blur-none" />
