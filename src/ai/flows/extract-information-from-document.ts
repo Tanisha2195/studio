@@ -14,7 +14,14 @@ import {z} from 'genkit';
 const ExtractInformationInputSchema = z.object({
   documentText: z
     .string()
-    .describe('The text content of the document to extract information from.'),
+    .optional()
+    .describe('The text content of the document to extract information from (primarily for .txt files).'),
+  documentDataUri: z
+    .string()
+    .optional()
+    .describe(
+      "A document (e.g., PDF, DOCX), as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'. Used if documentText is not provided."
+    ),
   keyword: z.string().describe('The keyword to search for in the document.'),
 });
 export type ExtractInformationInput = z.infer<typeof ExtractInformationInputSchema>;
@@ -36,10 +43,17 @@ const prompt = ai.definePrompt({
   output: {schema: ExtractInformationOutputSchema},
   prompt: `You are a helpful assistant designed to extract information from a document based on a user-provided keyword.
 
-  Document Text: {{{documentText}}}
-  Keyword: {{{keyword}}}
+{{#if documentText}}
+Document Text:
+{{{documentText}}}
+{{else if documentDataUri}}
+Document (analyze content from media URI):
+{{media url=documentDataUri}}
+{{/if}}
 
-  Please extract all information from the document that is relevant to the keyword.  Present the information in a clear and concise manner.`,
+Keyword: {{{keyword}}}
+
+Please extract all information from the document that is relevant to the keyword. Present the information in a clear and concise manner. If the document is not text-based, analyze its content to find information related to the keyword.`,
 });
 
 const extractInformationFlow = ai.defineFlow(
@@ -49,6 +63,9 @@ const extractInformationFlow = ai.defineFlow(
     outputSchema: ExtractInformationOutputSchema,
   },
   async input => {
+    if (!input.documentText && !input.documentDataUri) {
+      throw new Error('Either documentText or documentDataUri must be provided for extraction.');
+    }
     const {output} = await prompt(input);
     return output!;
   }

@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Search, Send, Lightbulb, FileText, AlertTriangle, Sparkles, MessageSquare } from 'lucide-react'; // FileText is already here
+import { Loader2, Search, Send, Lightbulb, FileText, AlertTriangle, Sparkles, MessageSquare } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 import { extractInformation, type ExtractInformationInput } from '@/ai/flows/extract-information-from-document';
@@ -40,7 +40,6 @@ export default function QuestaPage() {
   const [previousQuestion, setPreviousQuestion] = useState<string | null>(null);
   const [previousAnswer, setPreviousAnswer] = useState<string | null>(null);
 
-  const [isProcessingFile, setIsProcessingFile] = useState<boolean>(false); // This state could be used to drive the 'processing' prop more accurately
 
   const { toast } = useToast();
 
@@ -62,10 +61,10 @@ export default function QuestaPage() {
   };
 
   const handleExtractKeyword = async () => {
-    if (!documentTextContent) {
-      toast({
-        title: "Text Content Required",
-        description: "Keyword extraction requires text content. Please upload a .txt file.",
+    if (!documentDataUri) { // Check if any document is loaded (Data URI is always set)
+       toast({
+        title: "No Document Loaded",
+        description: "Please upload a document first to extract keywords.",
         variant: "destructive",
       });
       return;
@@ -80,10 +79,12 @@ export default function QuestaPage() {
     }
 
     setIsLoadingExtraction(true);
-    // setIsProcessingFile(true); // Potentially set a general processing state
     setExtractedInfo(null);
     try {
-      const input: ExtractInformationInput = { documentText: documentTextContent, keyword };
+      const input: ExtractInformationInput = {
+        keyword,
+        ...(documentTextContent ? { documentText: documentTextContent } : { documentDataUri: documentDataUri })
+      };
       const result = await extractInformation(input);
       setExtractedInfo(result.relevantInformation);
       toast({
@@ -99,7 +100,6 @@ export default function QuestaPage() {
       });
     } finally {
       setIsLoadingExtraction(false);
-      // setIsProcessingFile(false); // Clear general processing state
     }
   };
 
@@ -117,10 +117,9 @@ export default function QuestaPage() {
     setConversation(prev => [...prev, userMessage]);
     setCurrentQuestion('');
     setIsLoadingAnswer(true);
-    // setIsProcessingFile(true); // Potentially set a general processing state
 
     try {
-      if (previousQuestion && previousAnswer && documentTextContent) { // Follow-up question
+      if (previousQuestion && previousAnswer && documentTextContent) { // Follow-up question with text context
         const input: FollowUpQuestionUnderstandingInput = {
           document: documentTextContent,
           previousQuestion,
@@ -132,21 +131,27 @@ export default function QuestaPage() {
         setConversation(prev => [...prev, aiMessage]);
         setPreviousQuestion(userMessage.content);
         setPreviousAnswer(result.answer);
-      } else if (documentDataUri) { // Initial question
-         if (!documentTextContent && (previousQuestion || previousAnswer)) {
-          toast({
-            title: "Text Content Needed for Follow-up",
-            description: "Detailed follow-ups require document text. Please upload a TXT file for best results with follow-up questions.",
-            variant: "default",
-          });
-        }
-        const input: AnswerQuestionsFromDocumentInput = { documentDataUri, question: userMessage.content };
-        const result = await answerQuestionsFromDocument(input);
-        const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer, sources: result.sources };
-        setConversation(prev => [...prev, aiMessage]);
-        setPreviousQuestion(userMessage.content);
-        setPreviousAnswer(result.answer);
-
+      } else if (documentDataUri) { // Initial question or follow-up without specific text context (relying on documentDataUri for context)
+         if (!documentTextContent && previousQuestion && previousAnswer) { // Follow-up for non-TXT file
+            const input: FollowUpQuestionUnderstandingInput = { // Attempt follow-up using previous Q/A but general doc for context
+              document: `Document context is based on the uploaded file: ${uploadedFile?.name}. Previous interactions are key.`, // Placeholder for document context if text is not available.
+              previousQuestion,
+              previousAnswer,
+              followUpQuestion: userMessage.content,
+            };
+            const result = await followUpQuestionUnderstanding(input);
+            const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer };
+            setConversation(prev => [...prev, aiMessage]);
+            setPreviousQuestion(userMessage.content);
+            setPreviousAnswer(result.answer);
+         } else { // Initial question for any file type
+            const input: AnswerQuestionsFromDocumentInput = { documentDataUri, question: userMessage.content };
+            const result = await answerQuestionsFromDocument(input);
+            const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer, sources: result.sources };
+            setConversation(prev => [...prev, aiMessage]);
+            setPreviousQuestion(userMessage.content);
+            setPreviousAnswer(result.answer);
+         }
       } else {
          toast({
           title: "No Document",
@@ -165,12 +170,9 @@ export default function QuestaPage() {
       });
     } finally {
       setIsLoadingAnswer(false);
-      // setIsProcessingFile(false); // Clear general processing state
     }
   };
 
-  // Determine a general processing state for the FileDropzone
-  // This could be true if either extraction or Q&A is happening.
   const isAppProcessing = isLoadingExtraction || isLoadingAnswer;
 
 
@@ -185,7 +187,7 @@ export default function QuestaPage() {
         <div className="space-y-8">
           <FileDropzone
             onFileProcessed={handleFileProcessed}
-            processing={isAppProcessing} // Use combined processing state
+            processing={isAppProcessing}
             displayedFileName={uploadedFile?.name || null}
           />
 
@@ -193,13 +195,13 @@ export default function QuestaPage() {
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center"><Sparkles className="mr-2 h-5 w-5 text-primary" />Keyword Extraction</CardTitle>
-                <CardDescription>Find specific information by keyword. For best results, upload a .txt file.</CardDescription>
-                {!documentTextContent && (
+                <CardDescription>Find specific information by keyword. Works with TXT, PDF, and DOCX files.</CardDescription>
+                {uploadedFile && !documentTextContent && (
                   <Alert variant="default" className="mt-2 bg-primary/5 border-primary/20">
                      <Lightbulb className="h-4 w-4 text-primary" />
-                    <AlertTitle className="font-headline text-primary">Text Content Recommended</AlertTitle>
+                    <AlertTitle className="font-headline text-primary">Note on PDF/DOCX Extraction</AlertTitle>
                     <AlertDescription className="text-primary/80">
-                      Keyword extraction works best with .txt files. For PDF/DOCX, this feature might be limited.
+                      For PDF/DOCX files, keyword extraction analyzes the document's content. For the most precise keyword matches, .txt files are recommended.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -211,10 +213,10 @@ export default function QuestaPage() {
                     placeholder="Enter keyword (e.g., 'budget')"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    disabled={!documentTextContent || isLoadingExtraction}
+                    disabled={!uploadedFile || isLoadingExtraction}
                     className="shadow-sm"
                   />
-                  <Button onClick={handleExtractKeyword} disabled={!documentTextContent || isLoadingExtraction || !keyword.trim()} className="whitespace-nowrap">
+                  <Button onClick={handleExtractKeyword} disabled={!uploadedFile || isLoadingExtraction || !keyword.trim()} className="whitespace-nowrap">
                     {isLoadingExtraction ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
                     Extract
                   </Button>
