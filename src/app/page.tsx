@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Search, Send, Lightbulb, FileText, AlertTriangle, Sparkles, MessageSquare } from 'lucide-react';
+import { Loader2, Search, Send, Lightbulb, FileText, AlertTriangle, Sparkles, MessageSquare } from 'lucide-react'; // FileText is already here
 import { useToast } from "@/hooks/use-toast";
 
 import { extractInformation, type ExtractInformationInput } from '@/ai/flows/extract-information-from-document';
@@ -39,7 +40,7 @@ export default function QuestaPage() {
   const [previousQuestion, setPreviousQuestion] = useState<string | null>(null);
   const [previousAnswer, setPreviousAnswer] = useState<string | null>(null);
 
-  const [isProcessingFile, setIsProcessingFile] = useState<boolean>(false);
+  const [isProcessingFile, setIsProcessingFile] = useState<boolean>(false); // This state could be used to drive the 'processing' prop more accurately
 
   const { toast } = useToast();
 
@@ -79,6 +80,7 @@ export default function QuestaPage() {
     }
 
     setIsLoadingExtraction(true);
+    // setIsProcessingFile(true); // Potentially set a general processing state
     setExtractedInfo(null);
     try {
       const input: ExtractInformationInput = { documentText: documentTextContent, keyword };
@@ -97,6 +99,7 @@ export default function QuestaPage() {
       });
     } finally {
       setIsLoadingExtraction(false);
+      // setIsProcessingFile(false); // Clear general processing state
     }
   };
 
@@ -114,6 +117,7 @@ export default function QuestaPage() {
     setConversation(prev => [...prev, userMessage]);
     setCurrentQuestion('');
     setIsLoadingAnswer(true);
+    // setIsProcessingFile(true); // Potentially set a general processing state
 
     try {
       if (previousQuestion && previousAnswer && documentTextContent) { // Follow-up question
@@ -161,8 +165,13 @@ export default function QuestaPage() {
       });
     } finally {
       setIsLoadingAnswer(false);
+      // setIsProcessingFile(false); // Clear general processing state
     }
   };
+
+  // Determine a general processing state for the FileDropzone
+  // This could be true if either extraction or Q&A is happening.
+  const isAppProcessing = isLoadingExtraction || isLoadingAnswer;
 
 
   return (
@@ -174,19 +183,23 @@ export default function QuestaPage() {
 
       <main className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
-          <FileDropzone onFileProcessed={handleFileProcessed} processing={isProcessingFile} />
+          <FileDropzone
+            onFileProcessed={handleFileProcessed}
+            processing={isAppProcessing} // Use combined processing state
+            displayedFileName={uploadedFile?.name || null}
+          />
 
           {uploadedFile && (
             <Card className="shadow-lg">
               <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center"><Sparkles className="mr-2 h-5 w-5 text-primary" />Keyword Extraction</CardTitle>
-                <CardDescription>Find specific information by keyword.</CardDescription>
+                <CardDescription>Find specific information by keyword. For best results, upload a .txt file.</CardDescription>
                 {!documentTextContent && (
                   <Alert variant="default" className="mt-2 bg-primary/5 border-primary/20">
                      <Lightbulb className="h-4 w-4 text-primary" />
                     <AlertTitle className="font-headline text-primary">Text Content Recommended</AlertTitle>
                     <AlertDescription className="text-primary/80">
-                      For best keyword extraction results, upload a .txt file.
+                      Keyword extraction works best with .txt files. For PDF/DOCX, this feature might be limited.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -195,7 +208,7 @@ export default function QuestaPage() {
                 <div className="flex space-x-2">
                   <Input
                     type="text"
-                    placeholder="Enter keyword (e.g., 'budget', 'project timeline')"
+                    placeholder="Enter keyword (e.g., 'budget')"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     disabled={!documentTextContent || isLoadingExtraction}
@@ -238,7 +251,7 @@ export default function QuestaPage() {
             )}
           </CardHeader>
           <CardContent className="flex-grow flex flex-col space-y-4 overflow-hidden">
-            <ScrollArea className="flex-grow pr-4 -mr-4 mb-4 h-64 lg:h-auto"> {/* Added h-64 lg:h-auto for better mobile */}
+            <ScrollArea className="flex-grow pr-4 -mr-4 mb-4 h-64 lg:h-auto">
               <div className="space-y-4">
                 {conversation.map((msg) => (
                   <div key={msg.id} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -295,3 +308,4 @@ export default function QuestaPage() {
     </div>
   );
 }
+

@@ -1,18 +1,19 @@
+
 "use client";
 
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, AlertTriangle, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { UploadCloud, Loader2, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 interface FileDropzoneProps {
   onFileProcessed: (file: File, dataUri: string, textContent: string | null) => void;
   processing: boolean;
+  displayedFileName?: string | null;
 }
 
-export function FileDropzone({ onFileProcessed, processing }: FileDropzoneProps) {
+export function FileDropzone({ onFileProcessed, processing, displayedFileName }: FileDropzoneProps) {
   const { toast } = useToast();
 
   const onDrop = useCallback(
@@ -36,10 +37,16 @@ export function FileDropzone({ onFileProcessed, processing }: FileDropzoneProps)
             textReader.onload = (e) => {
               onFileProcessed(file, dataUri, e.target?.result as string);
             };
+            textReader.onerror = () => {
+                toast({ title: 'File Read Error', description: 'Could not read the text content of the file.', variant: 'destructive' });
+            };
             textReader.readAsText(file);
           } else {
             onFileProcessed(file, dataUri, null); // No text content for PDF/DOCX initially
           }
+        };
+        reader.onerror = () => {
+            toast({ title: 'File Read Error', description: 'Could not read the file.', variant: 'destructive' });
         };
         reader.readAsDataURL(file);
       }
@@ -72,14 +79,31 @@ export function FileDropzone({ onFileProcessed, processing }: FileDropzoneProps)
         >
           <input {...getInputProps()} disabled={processing} />
           {processing ? (
-            <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            <>
+              <Loader2 className="h-12 w-12 text-primary animate-spin" />
+              <p className="mt-4 text-sm text-muted-foreground text-center">
+                Processing {displayedFileName ? `"${displayedFileName}"` : 'file'}...
+              </p>
+            </>
+          ) : displayedFileName ? (
+            <>
+              <FileText className="h-12 w-12 text-primary" />
+              <p className="mt-4 text-sm text-foreground text-center">
+                Uploaded: <span className="font-semibold">{displayedFileName}</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 text-center">
+                Drop another file or click to replace. (PDF, DOCX, TXT)
+              </p>
+            </>
           ) : (
-            <UploadCloud className="h-12 w-12 text-muted-foreground group-hover:text-primary" />
+            <>
+              <UploadCloud className="h-12 w-12 text-muted-foreground group-hover:text-primary" />
+              <p className="mt-4 text-sm text-muted-foreground text-center">
+                {isDragActive ? 'Drop the file here...' : 'Drag & drop or click to upload'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1 text-center">(PDF, DOCX, TXT)</p>
+            </>
           )}
-          <p className="mt-4 text-sm text-muted-foreground">
-            {isDragActive ? 'Drop the file here...' : 'Drag & drop or click to upload'}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">(PDF, DOCX, TXT)</p>
         </div>
       </CardContent>
     </Card>
