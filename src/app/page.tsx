@@ -46,6 +46,29 @@ export default function HomePage() {
         <SearchIcon className="absolute bottom-[8%] left-[45%] h-10 w-10 text-primary opacity-15 transform rotate-5 filter blur-xs" />
         <BookOpen className="absolute top-[40%] left-[48%] h-8 w-8 text-primary opacity-10 transform rotate-0 filter blur-none" />
         <FileTextIcon className="absolute top-[75%] right-[6%] h-12 w-12 text-primary opacity-20 transform -rotate-8 filter blur-xs" />
+
+        {/* Adding even more elements for a packed look */}
+        <SearchIcon className="absolute top-[2%] left-[30%] h-7 w-7 text-primary opacity-10 transform rotate-30 filter blur-none" />
+        <BookOpen className="absolute top-[10%] right-[40%] h-9 w-9 text-primary opacity-12 transform -rotate-20 filter blur-xs" />
+        <FileTextIcon className="absolute top-[25%] left-[40%] h-10 w-10 text-primary opacity-15 transform rotate-5 filter blur-none" />
+        <SearchIcon className="absolute top-[35%] right-[25%] h-8 w-8 text-primary opacity-18 transform -rotate-15 filter blur-xs" />
+        <BookOpen className="absolute top-[55%] left-[15%] h-11 w-11 text-primary opacity-10 transform rotate-25 filter blur-none" />
+        <FileTextIcon className="absolute top-[60%] right-[35%] h-9 w-9 text-primary opacity-12 transform -rotate-5 filter blur-xs" />
+        <SearchIcon className="absolute top-[70%] left-[25%] h-10 w-10 text-primary opacity-15 transform rotate-10 filter blur-none" />
+        <BookOpen className="absolute top-[85%] right-[12%] h-8 w-8 text-primary opacity-18 transform -rotate-30 filter blur-xs" />
+        <FileTextIcon className="absolute bottom-[2%] right-[50%] h-11 w-11 text-primary opacity-10 transform rotate-15 filter blur-none" />
+        <SearchIcon className="absolute bottom-[15%] left-[30%] h-9 w-9 text-primary opacity-12 transform -rotate-10 filter blur-xs" />
+        <BookOpen className="absolute bottom-[25%] right-[20%] h-10 w-10 text-primary opacity-15 transform rotate-8 filter blur-none" />
+        <FileTextIcon className="absolute bottom-[35%] left-[40%] h-8 w-8 text-primary opacity-18 transform -rotate-18 filter blur-xs" />
+        
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="absolute top-[5%] left-[60%] text-primary opacity-12 transform rotate-50 filter blur-xs">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line>
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="absolute bottom-[12%] right-[40%] text-primary opacity-12 transform -rotate-25 filter blur-none">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><line x1="10" y1="9" x2="8" y2="9"></line>
+        </svg>
+         <SearchIcon className="absolute top-[45%] right-[45%] h-9 w-9 text-primary opacity-10 transform rotate-35 filter blur-none" />
+         <BookOpen className="absolute bottom-[40%] left-[3%] h-10 w-10 text-primary opacity-12 transform -rotate-22 filter blur-xs" />
       </div>
       
       <main className="w-full max-w-3xl z-10">
@@ -93,3 +116,4 @@ export default function HomePage() {
     </div>
   );
 }
+
