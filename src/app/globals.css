@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    --background: 45 70% 96%; /* Light warm beige */
+    --background: 45 60% 98.5%; /* Lighter warm beige, closer to white */
     --foreground: 230 25% 25%; /* Dark, slightly desaturated blue-grey */
 
-    --card: 45 70% 96%;
+    --card: 45 60% 98.5%; /* Consistent with new background */
     --card-foreground: 230 25% 25%;
 
-    --popover: 45 70% 96%;
+    --popover: 45 60% 98.5%; /* Consistent with new background */
     --popover-foreground: 230 25% 25%;
 
     --primary: 225 50% 38%; /* Navy blue */
