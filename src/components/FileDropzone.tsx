@@ -6,6 +6,7 @@ import { useDropzone } from 'react-dropzone';
 import { UploadCloud, Loader2, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import * as mammoth from 'mammoth';
 
 interface FileDropzoneProps {
   onFileProcessed: (file: File, dataUri: string, textContent: string | null) => void;
@@ -29,9 +30,10 @@ export function FileDropzone({ onFileProcessed, processing, displayedFileName }:
           return;
         }
         
-        const reader = new FileReader();
-        reader.onload = () => {
-          const dataUri = reader.result as string;
+        const dataUriReader = new FileReader();
+        dataUriReader.onload = () => {
+          const dataUri = dataUriReader.result as string;
+
           if (file.type === 'text/plain') {
             const textReader = new FileReader();
             textReader.onload = (e) => {
@@ -41,14 +43,36 @@ export function FileDropzone({ onFileProcessed, processing, displayedFileName }:
                 toast({ title: 'File Read Error', description: 'Could not read the text content of the file.', variant: 'destructive' });
             };
             textReader.readAsText(file);
+          } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            const arrayBufferReader = new FileReader();
+            arrayBufferReader.onload = async () => {
+              try {
+                const arrayBuffer = arrayBufferReader.result as ArrayBuffer;
+                const result = await mammoth.extractRawText({ arrayBuffer });
+                onFileProcessed(file, dataUri, result.value);
+              } catch (error) {
+                console.error('Error extracting text from DOCX:', error);
+                toast({ title: 'DOCX Processing Error', description: 'Could not extract text from the DOCX. Keyword extraction may be affected.', variant: 'destructive' });
+                onFileProcessed(file, dataUri, ""); // Pass empty string if extraction fails
+              }
+            };
+            arrayBufferReader.onerror = () => {
+                toast({ title: 'File Read Error', description: 'Could not read the DOCX file for text extraction.', variant: 'destructive' });
+                onFileProcessed(file, dataUri, ""); // Pass empty string if read fails
+            };
+            arrayBufferReader.readAsArrayBuffer(file);
+          } else if (file.type === 'application/pdf') {
+            // For PDF, we let Genkit handle it with the dataUri directly, so textContent is null.
+            onFileProcessed(file, dataUri, null);
           } else {
-            onFileProcessed(file, dataUri, null); // No text content for PDF/DOCX initially
+             // Fallback for any other accepted type (though current filter is specific)
+            onFileProcessed(file, dataUri, null);
           }
         };
-        reader.onerror = () => {
-            toast({ title: 'File Read Error', description: 'Could not read the file.', variant: 'destructive' });
+        dataUriReader.onerror = () => {
+            toast({ title: 'File Read Error', description: 'Could not read the file data.', variant: 'destructive' });
         };
-        reader.readAsDataURL(file);
+        dataUriReader.readAsDataURL(file);
       }
     },
     [onFileProcessed, toast]
@@ -78,21 +102,21 @@ export function FileDropzone({ onFileProcessed, processing, displayedFileName }:
             ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <input {...getInputProps()} disabled={processing} />
-          {processing ? (
+          {processing && displayedFileName ? ( // Changed condition here
             <>
               <Loader2 className="h-12 w-12 text-primary animate-spin" />
               <p className="mt-4 text-sm text-muted-foreground text-center">
-                Processing {displayedFileName ? `"${displayedFileName}"` : 'file'}...
+                Processing <span className="font-semibold">"{displayedFileName}"</span>...
               </p>
             </>
           ) : displayedFileName ? (
             <>
               <FileText className="h-12 w-12 text-primary" />
               <p className="mt-4 text-sm text-foreground text-center">
-                Uploaded: <span className="font-semibold">{displayedFileName}</span>
+                Ready: <span className="font-semibold">{displayedFileName}</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1 text-center">
-                Drop another file or click to replace. (PDF, DOCX, TXT)
+                Drop another file or click to replace.
               </p>
             </>
           ) : (
