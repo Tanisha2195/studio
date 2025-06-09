@@ -26,7 +26,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased min-h-screen flex flex-col bg-background text-foreground">
         <header className="w-full py-3 px-4 md:px-8 bg-card shadow-md sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="max-w-6xl flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2 group">
               <QuestaLogo />
             </Link>

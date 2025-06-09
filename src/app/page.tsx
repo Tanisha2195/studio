@@ -17,8 +17,8 @@ export default function HomePage() {
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
         {/* Smaller, more distributed background pattern elements */}
         <BookOpen className="absolute top-[2%] left-[5%] h-9 w-9 text-primary opacity-15 transform -rotate-15 filter blur-xs" />
-        <FileTextIcon className="absolute top-[8%] left-[15%] h-10 w-10 text-primary opacity-12 transform rotate-10 filter blur-none" />
-        <SearchIcon className="absolute top-[12%] left-[2%] h-8 w-8 text-primary opacity-18 transform rotate-25 filter blur-xs" />
+        <FileTextIcon className="absolute top-[1%] left-[2%] h-7 w-7 text-primary opacity-12 transform rotate-5 filter blur-none" />
+        <SearchIcon className="absolute top-[3%] left-[10%] h-8 w-8 text-primary opacity-18 transform rotate-20 filter blur-xs" />
         
         <BookOpen className="absolute top-[8%] left-[5%] h-10 w-10 text-primary opacity-15 transform -rotate-12 filter blur-none" />
         <FileTextIcon className="absolute top-[15%] right-[8%] h-12 w-12 text-primary opacity-15 transform rotate-6 filter blur-xs" />
@@ -80,8 +80,8 @@ export default function HomePage() {
       
       <main className="w-full max-w-3xl z-10">
         <Card className="w-full shadow-xl bg-card/90 backdrop-blur-sm border-border/50">
-          <CardHeader className="pb-4 text-left">
-            <QuestaLogo iconOnly className="h-16 w-16 text-primary" containerClassName="mb-4" />
+          <CardHeader className="pb-4">
+            <QuestaLogo iconOnly className="h-16 w-16 text-primary" containerClassName="mb-4 mx-auto" />
             <CardTitle className="text-4xl lg:text-5xl font-headline font-bold text-primary">
               Welcome to Questa
             </CardTitle>
