@@ -6,10 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { ListRestart, Trash2 } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'Questa - Interaction History',
-  description: 'Review your past document interactions and queries with Questa.',
-};
+// Removed metadata export as it's not allowed in client components
 
 export default function HistoryPage() {
   // Placeholder for actual history fetching logic
