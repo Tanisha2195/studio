@@ -61,7 +61,7 @@ export default function QuestaPage() {
   };
 
   const handleExtractKeyword = async () => {
-    if (!documentDataUri) { // Check if any document is loaded (Data URI is always set)
+    if (!documentDataUri) { 
        toast({
         title: "No Document Loaded",
         description: "Please upload a document first to extract keywords.",
@@ -83,7 +83,7 @@ export default function QuestaPage() {
     try {
       const input: ExtractInformationInput = {
         keyword,
-        ...(documentTextContent ? { documentText: documentTextContent } : { documentDataUri: documentDataUri })
+        ...(documentTextContent ? { documentText: documentTextContent } : { documentDataUri: documentDataUri! })
       };
       const result = await extractInformation(input);
       setExtractedInfo(result.relevantInformation);
@@ -119,39 +119,29 @@ export default function QuestaPage() {
     setIsLoadingAnswer(true);
 
     try {
-      if (previousQuestion && previousAnswer && documentTextContent) { // Follow-up question with text context
-        const input: FollowUpQuestionUnderstandingInput = {
-          document: documentTextContent,
+      if (previousQuestion && previousAnswer && (documentTextContent || documentDataUri)) { 
+        const followUpInput: FollowUpQuestionUnderstandingInput = {
+          document: documentTextContent || `Document context is based on the uploaded file: ${uploadedFile?.name}. Previous interactions are key.`,
           previousQuestion,
           previousAnswer,
           followUpQuestion: userMessage.content,
         };
-        const result = await followUpQuestionUnderstanding(input);
+        const result = await followUpQuestionUnderstanding(followUpInput);
         const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer };
         setConversation(prev => [...prev, aiMessage]);
         setPreviousQuestion(userMessage.content);
         setPreviousAnswer(result.answer);
-      } else if (documentDataUri) { // Initial question or follow-up without specific text context (relying on documentDataUri for context)
-         if (!documentTextContent && previousQuestion && previousAnswer) { // Follow-up for non-TXT file
-            const input: FollowUpQuestionUnderstandingInput = { // Attempt follow-up using previous Q/A but general doc for context
-              document: `Document context is based on the uploaded file: ${uploadedFile?.name}. Previous interactions are key.`, // Placeholder for document context if text is not available.
-              previousQuestion,
-              previousAnswer,
-              followUpQuestion: userMessage.content,
-            };
-            const result = await followUpQuestionUnderstanding(input);
-            const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer };
-            setConversation(prev => [...prev, aiMessage]);
-            setPreviousQuestion(userMessage.content);
-            setPreviousAnswer(result.answer);
-         } else { // Initial question for any file type
-            const input: AnswerQuestionsFromDocumentInput = { documentDataUri, question: userMessage.content };
-            const result = await answerQuestionsFromDocument(input);
-            const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer, sources: result.sources };
-            setConversation(prev => [...prev, aiMessage]);
-            setPreviousQuestion(userMessage.content);
-            setPreviousAnswer(result.answer);
-         }
+
+      } else if (documentDataUri || documentTextContent) { 
+          const input: AnswerQuestionsFromDocumentInput = { 
+            question: userMessage.content,
+            ...(documentTextContent ? { documentText: documentTextContent } : { documentDataUri: documentDataUri! })
+          };
+          const result = await answerQuestionsFromDocument(input);
+          const aiMessage: Message = { id: Date.now().toString() + '_ai', type: 'ai', content: result.answer, sources: result.sources };
+          setConversation(prev => [...prev, aiMessage]);
+          setPreviousQuestion(userMessage.content);
+          setPreviousAnswer(result.answer);
       } else {
          toast({
           title: "No Document",
@@ -196,12 +186,21 @@ export default function QuestaPage() {
               <CardHeader>
                 <CardTitle className="font-headline text-xl flex items-center"><Sparkles className="mr-2 h-5 w-5 text-primary" />Keyword Extraction</CardTitle>
                 <CardDescription>Find specific information by keyword. Works with TXT, PDF, and DOCX files.</CardDescription>
-                {uploadedFile && !documentTextContent && (
+                {uploadedFile && !documentTextContent && uploadedFile.type === 'application/pdf' && (
                   <Alert variant="default" className="mt-2 bg-primary/5 border-primary/20">
                      <Lightbulb className="h-4 w-4 text-primary" />
-                    <AlertTitle className="font-headline text-primary">Note on PDF/DOCX Extraction</AlertTitle>
+                    <AlertTitle className="font-headline text-primary">Note on PDF Extraction</AlertTitle>
                     <AlertDescription className="text-primary/80">
-                      For PDF/DOCX files, keyword extraction analyzes the document's content. For the most precise keyword matches, .txt files are recommended.
+                      For PDF files, keyword extraction analyzes the document's content as understood by the AI. For the most precise keyword matches based on exact text, .txt files are recommended.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                 {uploadedFile && documentTextContent && uploadedFile.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' && (
+                  <Alert variant="default" className="mt-2 bg-primary/5 border-primary/20">
+                     <Lightbulb className="h-4 w-4 text-primary" />
+                    <AlertTitle className="font-headline text-primary">Note on DOCX Extraction</AlertTitle>
+                    <AlertDescription className="text-primary/80">
+                      For DOCX files, text content is extracted for keyword analysis. Formatting and complex layouts might affect precision.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -310,4 +309,3 @@ export default function QuestaPage() {
     </div>
   );
 }
-

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview This file defines a Genkit flow for answering questions based on the content of an uploaded document.
@@ -13,9 +14,14 @@ import {z} from 'genkit';
 const AnswerQuestionsFromDocumentInputSchema = z.object({
   documentDataUri: z
     .string()
+    .optional()
     .describe(
-      "A document, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A document (e.g., PDF), as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'. Used if documentText is not provided."
     ),
+  documentText: z
+    .string()
+    .optional()
+    .describe('The text content of the document (primarily for .txt or extracted from .docx).'),
   question: z.string().describe('The question to be answered from the document.'),
 });
 export type AnswerQuestionsFromDocumentInput = z.infer<typeof AnswerQuestionsFromDocumentInputSchema>;
@@ -38,7 +44,13 @@ const prompt = ai.definePrompt({
 
   You will be given a document and a question. You will answer the question based on the document, and provide references to the source material.
 
-  Document: {{media url=documentDataUri}}
+  {{#if documentText}}
+  Document Text:
+  {{{documentText}}}
+  {{else if documentDataUri}}
+  Document (analyze content from media URI):
+  {{media url=documentDataUri}}
+  {{/if}}
   Question: {{{question}}}
   Answer:
   `,
@@ -51,6 +63,9 @@ const answerQuestionsFromDocumentFlow = ai.defineFlow(
     outputSchema: AnswerQuestionsFromDocumentOutputSchema,
   },
   async input => {
+    if (!input.documentText && !input.documentDataUri) {
+      throw new Error('Either documentText or documentDataUri must be provided to answer questions.');
+    }
     const {output} = await prompt(input);
     return output!;
   }
