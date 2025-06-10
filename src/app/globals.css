@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 45 60% 98.5%; /* Lighter warm beige, closer to white */
-    --foreground: 230 25% 25%; /* Dark, slightly desaturated blue-grey */
+    --background: 30 50% 98%; /* Very light warm off-white */
+    --foreground: 230 30% 20%; /* Dark desaturated indigo */
 
-    --card: 45 60% 98.5%; /* Consistent with new background */
-    --card-foreground: 230 25% 25%;
+    --card: 30 50% 98%; /* Consistent with new background */
+    --card-foreground: 230 30% 20%;
 
-    --popover: 45 60% 98.5%; /* Consistent with new background */
-    --popover-foreground: 230 25% 25%;
+    --popover: 30 50% 98%; /* Consistent with new background */
+    --popover-foreground: 230 30% 20%;
 
-    --primary: 225 50% 38%; /* Navy blue */
+    --primary: 230 60% 45%; /* Deep Indigo */
     --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 220 15% 90%; /* Light grey */
-    --secondary-foreground: 220 15% 30%; /* Darker grey */
+    --secondary: 220 30% 88%; /* Light calming blue-grey */
+    --secondary-foreground: 220 30% 25%; /* Darker blue-grey */
 
-    --muted: 220 15% 94%; /* Very light grey */
-    --muted-foreground: 220 10% 50%; /* Medium grey */
+    --muted: 220 20% 94%; /* Very light grey */
+    --muted-foreground: 220 10% 55%; /* Medium grey */
 
-    --accent: 210 20% 80%; /* Medium-light grey for accents */
-    --accent-foreground: 210 20% 20%; /* Dark text on accent */
+    --accent: 35 90% 60%; /* Warm Amber/Orange */
+    --accent-foreground: 25 100% 15%; /* Dark Brown for contrast on amber */
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 75% 55%; /* Strong red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 225 50% 45%;
+    --border: 220 25% 85%; /* Slightly darker than secondary */
+    --input: 220 25% 85%;
+    --ring: 230 60% 55%; /* Slightly lighter primary */
 
     --radius: 0.5rem;
 
@@ -42,33 +42,33 @@
   }
 
   .dark {
-    --background: 230 25% 15%;
-    --foreground: 45 70% 90%;
+    --background: 230 30% 10%; /* Very dark indigo */
+    --foreground: 30 50% 90%; /* Light warm grey/off-white for text */
 
-    --card: 230 25% 15%;
-    --card-foreground: 45 70% 90%;
+    --card: 230 30% 12%; /* Slightly lighter than background */
+    --card-foreground: 30 50% 90%;
 
-    --popover: 230 25% 15%;
-    --popover-foreground: 45 70% 90%;
+    --popover: 230 30% 12%;
+    --popover-foreground: 30 50% 90%;
 
-    --primary: 225 50% 65%;
-    --primary-foreground: 230 25% 10%;
+    --primary: 230 70% 70%; /* Brighter Indigo for dark mode */
+    --primary-foreground: 230 30% 10%; /* Dark indigo text on brighter primary */
 
-    --secondary: 220 15% 25%;
-    --secondary-foreground: 220 15% 85%;
+    --secondary: 220 20% 25%; /* Dark blue-grey */
+    --secondary-foreground: 220 20% 75%; /* Lighter blue-grey text */
 
-    --muted: 220 15% 20%;
-    --muted-foreground: 220 10% 55%;
+    --muted: 220 15% 20%; /* Very dark grey */
+    --muted-foreground: 220 10% 60%; /* Medium grey text */
 
-    --accent: 210 20% 35%;
-    --accent-foreground: 210 20% 90%;
+    --accent: 35 80% 65%; /* Rich Amber for dark mode */
+    --accent-foreground: 25 100% 15%; /* Dark Brown for contrast */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 65% 50%; /* Strong red for dark mode */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 30%;
-    --input: 220 15% 30%;
-    --ring: 225 50% 55%;
+    --border: 220 20% 30%; /* Subtle border in dark mode */
+    --input: 220 20% 30%;
+    --ring: 230 70% 75%; /* Slightly lighter primary for focus rings */
   }
 }
 
