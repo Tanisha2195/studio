@@ -159,7 +159,9 @@ export default function QuestaAppPage() {
     try {
       if (previousQuestion && previousAnswer && (documentTextContent || documentDataUri)) { 
         const followUpInput: FollowUpQuestionUnderstandingInput = {
-           document: documentTextContent || `Document context is based on the uploaded file: ${uploadedFile?.name}. Previous interactions are key. Analyze the provided document context.`,
+          ...(documentTextContent && (uploadedFile?.type === 'text/plain' || uploadedFile?.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+            ? { documentText: documentTextContent }
+            : { documentDataUri: documentDataUri! }),
           previousQuestion,
           previousAnswer,
           followUpQuestion: userMessage.content,
